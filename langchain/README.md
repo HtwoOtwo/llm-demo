@@ -25,3 +25,9 @@ LLM充当路由判断和参数解析。
 参数解析：解析出工具的入参
 
 ref: https://python.langchain.com/docs/how_to/tools_chain/
+
+## notion 知识库
+`notion_rag.ipynb`
+
+TBC
+- [] 跑通demo
