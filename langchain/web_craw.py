@@ -1,13 +1,13 @@
+import os
 import pprint
 
+from langchain_community.chat_models import ChatZhipuAI  # noqa
 from langchain_community.document_loaders import AsyncChromiumLoader
 from langchain_community.document_transformers import BeautifulSoupTransformer
 from langchain_openai import ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pydantic.v1 import BaseModel, Field
-from langchain_community.chat_models import ChatZhipuAI # noqa
 
-import os
 os.environ['USER_AGENT'] = 'myagent'
 
 schema = {
@@ -21,8 +21,8 @@ schema = {
 class Schema(BaseModel):
     news_article_title: str = Field(description="The title of the news article")
     news_article_summary: str = Field(description="A summary of the news article")
-    
-    
+
+
 llm = ChatOpenAI(
             model="qwen-turbo",
             base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",

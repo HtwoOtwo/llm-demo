@@ -39,6 +39,6 @@ for i in range(10):
         }],
     )
     print("Chat response:", chat_response)
-    
+
 end = time.time()
 print(end - start)

@@ -20,7 +20,7 @@ os.makedirs(downloads_path, exist_ok=True)
 browser_config = BrowserConfig(proxy_config=proxy_config)
 
 # RUN confg
-crawl_config = CrawlerRunConfig(    
+crawl_config = CrawlerRunConfig(
         cache_mode=CacheMode.BYPASS,
         wait_for_images=True,
         scan_full_page=True,
@@ -29,14 +29,14 @@ crawl_config = CrawlerRunConfig(
 def download_image(url, filename, description=None):
     try:
         response = requests.get(url, stream=True, proxies=PROXIES, verify=False)
-        response.raise_for_status() 
+        response.raise_for_status()
 
         with open(filename, 'wb') as file:
             for chunk in response.iter_content(1024):
                 file.write(chunk)
 
         print(f"image saved: {filename}")
-        
+
         if description:
             txt_path = os.path.splitext(filename)[0] + ".txt"
             with open(txt_path, 'wb') as file:
@@ -54,14 +54,14 @@ async def main():
         # print(result.markdown)
         if result.success:
             print("Media.Images count: ", len(result.media['images']))
-        
+
             for image in result.media['images']:
                 url = image['src']
                 alt = image['alt']
                 filename = os.path.basename(url)
                 download_image(url, os.path.join(downloads_path, filename), description=alt)
-        
-    
+
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -1,18 +1,18 @@
 import getpass
 import os
 
-from langchain_openai import ChatOpenAI
-# from milvus import default_server
-
-from langchain.chains.query_constructor.base import AttributeInfo
 from langchain_community.document_loaders import NotionDBLoader
 from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Milvus
+from langchain_openai import ChatOpenAI
+
+# from milvus import default_server
+from langchain.chains.query_constructor.base import AttributeInfo
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.text_splitter import (
-    MarkdownHeaderTextSplitter, 
+    MarkdownHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
 )
-from langchain_community.vectorstores import Milvus
 
 # how to config notion plz ref: https://www.bilibili.com/opus/857936373290631255
 # ref: http://docs.autoinfra.cn/docs/integrations/document_loaders/notiondb

@@ -212,7 +212,7 @@ def draw_mask(image, mask, color):
 
     for i in range(3):
         colored_mask[..., i] = mask * color[i]
-    
+
     overlay = cv2.addWeighted(overlay, 1, colored_mask, 0.5, 0)
 
     return overlay
@@ -226,23 +226,23 @@ def parse_args():
         required=True,
         help="Path to save folder",
     )
-    
+
     return parser.parse_args()
-    
+
 class ProcessManager:
     def __init__(self):
         self.prompt_map = {}  # id: prompt
         self.mask_map = {}
         self.masks_color = []
-        
+
     def upload(self, image_path):
         # reset
         self.prompt_map = {}
         self.mask_map = {}
         self.masks_color = []
         return Image.open(image_path) if image_path is not None else None
-        
-        
+
+
     def annotate_image(self, image, label_path):
         if label_path is None:
             mask = image["layers"][0][:,:,-1]
@@ -251,7 +251,7 @@ class ProcessManager:
             color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
             while color in self.masks_color:
                 color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            
+
             self.masks_color.append(color)
             masked_image = draw_mask(image, mask, color)
         else:
@@ -265,30 +265,30 @@ class ProcessManager:
                 for _ in range(num_masks)
             ]
             self.mask_map = {i: mask for i, mask in enumerate(masks) }
-            
+
             mask_0, color_0 = self.mask_map[0], self.masks_color[0]
             masked_image = draw_mask(image, mask_0, color_0)
-            
+
         return masked_image, len(self.prompt_map), len(self.prompt_map)
 
 
-    def show_record_prompt(self, slider, image):        
+    def show_record_prompt(self, slider, image):
         try:
             overlay = draw_mask(image["background"], self.mask_map[slider], self.masks_color[slider])
         except Exception:
             overlay = None
         prompt = self.prompt_map.get(slider, "")
-        
+
         return prompt, slider, overlay
-    
+
     def save_mask(self, image, num, prompt, file_upload):
         file_upload = Path(file_upload)
         image_name = file_upload.stem
         save_folder = Path(DATA_ROOT) / image_name
-        
+
         mask = image["layers"][0][:,:,-1]
         image = image["background"]
-        
+
         # record
         if prompt.strip():  # Ensure non-empty prompts are recorded
             if num not in self.prompt_map:
@@ -296,16 +296,16 @@ class ProcessManager:
             if num not in self.mask_map:
                 self.mask_map[num] = mask
             print(f"Recorded {num} prompt: {prompt}")
-            
+
             mask_path = save_folder / f"{prompt}.png"
             image_path = save_folder / f"{image_name}.png"
             os.makedirs(save_folder, exist_ok=True)
             Image.fromarray(self.mask_map[num]).save(mask_path)
             if not os.path.exists(image_path):
                 Image.fromarray(image).save(image_path)
-        
+
         return num + 1, num + 1, None, image
-    
+
 
 manager = ProcessManager()
 

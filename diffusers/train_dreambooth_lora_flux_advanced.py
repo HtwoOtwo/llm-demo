@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding=utf-8
 # Copyright 2024 The HuggingFace Inc. team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -264,8 +263,8 @@ def log_validation(
 def flush():
     torch.cuda.empty_cache()
     gc.collect()
-    
-    
+
+
 def import_model_class_from_model_name_or_path(
     pretrained_model_name_or_path: str, revision: str, subfolder: str = "text_encoder"
 ):
@@ -1187,9 +1186,8 @@ def _get_t5_prompt_embeds(
             return_tensors="pt",
         )
         text_input_ids = text_inputs.input_ids
-    else:
-        if text_input_ids is None:
-            raise ValueError("text_input_ids must be provided when the tokenizer is not specified")
+    elif text_input_ids is None:
+        raise ValueError("text_input_ids must be provided when the tokenizer is not specified")
 
     prompt_embeds = text_encoder(text_input_ids.to(device))[0]
 
@@ -1228,9 +1226,8 @@ def _get_clip_prompt_embeds(
         )
 
         text_input_ids = text_inputs.input_ids
-    else:
-        if text_input_ids is None:
-            raise ValueError("text_input_ids must be provided when the tokenizer is not specified")
+    elif text_input_ids is None:
+        raise ValueError("text_input_ids must be provided when the tokenizer is not specified")
 
     prompt_embeds = text_encoder(text_input_ids.to(device), output_hidden_states=False)
 
@@ -1503,7 +1500,7 @@ def main(args):
         weight_dtype = torch.float16
     elif accelerator.mixed_precision == "bf16":
         weight_dtype = torch.bfloat16
-        
+
     tokenizer_one = CLIPTokenizer.from_pretrained(
         args.pretrained_model_name_or_path,
         subfolder="tokenizer",
@@ -1632,13 +1629,13 @@ def main(args):
         #         target_modules.append(name)
         import json
         model_index_path = Path(args.pretrained_model_name_or_path) / "transformer" / "diffusion_pytorch_model.safetensors.index.json"
-        with open(model_index_path, "r") as f:
+        with open(model_index_path) as f:
             model_index = json.load(f)
         for name in model_index["weight_map"].keys():
             if "transformer_blocks" in name and "norm" not in name and "single" not in name:
                 name = name.rsplit('.', 1)[0]
                 target_modules.append(name)
-                
+
     elif args.lora_layers is not None:
         target_modules = [layer.strip() for layer in args.lora_layers.split(",")]
     else:
@@ -2280,7 +2277,7 @@ def main(args):
                     guidance = guidance.expand(model_input.shape[0])
                 else:
                     guidance = None
-                
+
                 flush()
                 # Predict the noise residual
                 model_pred = transformer(
@@ -2293,9 +2290,9 @@ def main(args):
                     txt_ids=text_ids,
                     img_ids=latent_image_ids,
                     return_dict=False,
-                )[0]                
+                )[0]
                 flush()
-                
+
                 model_pred = FluxPipeline._unpack_latents(
                     model_pred,
                     height=model_input.shape[2] * vae_scale_factor,
@@ -2388,7 +2385,7 @@ def main(args):
                                     shutil.rmtree(removing_checkpoint)
 
                         save_path = os.path.join(args.output_dir, f"checkpoint-{global_step}")
-                        
+
                         # NOTE we dont use accelerator.save_state() here, because we didnt prepare
                         #accelerator.save_state(save_path)
                         transformer.to("cpu") # save memory
@@ -2398,7 +2395,7 @@ def main(args):
                             transformer_lora_layers=transformer_lora_layers_to_save,
                         )
                         transformer.to(accelerator.device)
-                        
+
                         logger.info(f"Saved state to {save_path}")
 
             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}

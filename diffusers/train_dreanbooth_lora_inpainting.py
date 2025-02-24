@@ -77,9 +77,8 @@ def _get_clip_prompt_embeds(
         )
 
         text_input_ids = text_inputs.input_ids
-    else:
-        if text_input_ids is None:
-            raise ValueError("text_input_ids must be provided when the tokenizer is not specified")
+    elif text_input_ids is None:
+        raise ValueError("text_input_ids must be provided when the tokenizer is not specified")
 
     prompt_embeds = text_encoder(text_input_ids.to(device), output_hidden_states=False)
 
@@ -110,7 +109,7 @@ def encode_prompt(
 def prepare_mask_and_masked_image(image, mask, size):
     image = np.array(image.convert("RGB"))
     image = cv2.resize(image, size, interpolation=cv2.INTER_LINEAR) # resize
-    
+
     image = image[None].transpose(0, 3, 1, 2)
     image = torch.from_numpy(image).to(dtype=torch.float32) / 127.5 - 1.0
 
@@ -388,7 +387,7 @@ class DreamBoothDataset(Dataset):
 
         self.images_path = list(Path(data_root).iterdir())
         self.num_images = len(self.images_path)
-        
+
         for image_path in self.images_path:
             image_name = image_path.stem
             origin_image_path = next(image_path.glob(f"{image_name}*"))
@@ -396,7 +395,7 @@ class DreamBoothDataset(Dataset):
             for image_path in images:
                 if image_path != origin_image_path:
                     self.instance_mask_map[image_path] = origin_image_path
-        
+
         self.instance_masks_path = list(self.instance_mask_map.keys()) # self.instance_mask_map.keys()
         self._length = len(self.instance_masks_path)
 
@@ -423,9 +422,9 @@ class DreamBoothDataset(Dataset):
         example = {}
         instance_mask_path = self.instance_masks_path[index % self._length]
         origin_image_path = self.instance_mask_map[instance_mask_path]
-        
+
         instance_mask = Image.open(instance_mask_path)
-        
+
         prompt = instance_mask_path.stem
         origin_image = Image.open(origin_image_path)
         if not origin_image.mode == "RGB":
@@ -436,12 +435,12 @@ class DreamBoothDataset(Dataset):
         example["pixel_values"] = self.image_transforms(origin_image)
 
         example["prompt"] = prompt
-        
+
         h, w = example["pixel_values"].shape[-2:]
         mask, masked_image = prepare_mask_and_masked_image(origin_image, instance_mask, (w, h))
         example["mask"] = mask
         example["masked_image"] = masked_image
-        
+
         return example
 
 def collate_fn(examples):

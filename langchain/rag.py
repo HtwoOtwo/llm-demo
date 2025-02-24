@@ -1,7 +1,6 @@
 import getpass
 import os
 
-from langchain import hub
 from langchain_community.document_loaders import AsyncChromiumLoader
 from langchain_community.embeddings import ZhipuAIEmbeddings
 from langchain_core.documents import Document
@@ -10,6 +9,8 @@ from langchain_openai import ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langgraph.graph import START, StateGraph
 from typing_extensions import List, TypedDict
+
+from langchain import hub
 
 if not os.environ.get("OPENAI_API_KEY"):
     os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter API key for OpenAI: ")
